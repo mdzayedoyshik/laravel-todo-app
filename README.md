@@ -50,7 +50,7 @@ All routes are versioned under `/api/v1` and split into three files by audience.
 
 1. **Clone the repository:**
 	```bash
-	git clone https://github.com/xX0ZAK0Xx/laravel-todo-app.git
+	git clone https://github.com/mdzayedoyshik/laravel-todo-app.git
 	cd laravel-todo-app
 	```
 
