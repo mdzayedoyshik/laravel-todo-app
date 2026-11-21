@@ -1,7 +1,7 @@
 
 # Laravel Todo API
 
-A JSON-only REST API for a todo app, built with Laravel 12. The domain is small on purpose. I used it to practise how I like a Laravel codebase laid out: thin controllers, form requests for validation, services for business rules, repositories behind interfaces, and side effects such as email and streaks moved out of the request through events and queued listeners.
+A JSON-only REST API for a todo app, built with Laravel 12. The domain is small on purpose, so the structure is easy to see. It is how I lay out a Laravel service: thin controllers, form requests for validation, services for business rules, repositories behind interfaces, and side effects such as email and streaks moved out of the request through events and queued listeners.
 
 ## How a request flows
 
@@ -36,7 +36,7 @@ All routes are versioned under `/api/v1` and split into three files by audience.
 - Completion email sent through a queued job
 - Admin statistics: overall counts and completions over time
 - RESTful API structure (public, user, admin routes)
-- JSON-only, API-first — no frontend build step or Node.js required
+- JSON only and API first, with no frontend build step
 - Database seeding with sample users and todos
 
 ## Requirements
