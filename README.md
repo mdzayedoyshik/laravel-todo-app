@@ -1,14 +1,40 @@
 
-# Todo App
+# Laravel Todo API
 
-A feature-rich Todo application built with Laravel 12. This project demonstrates a clean architecture using repositories, services, events, listeners, observers, and API resources. It supports user authentication, todo management, statistics, and email notifications.
+A JSON-only REST API for a todo app, built with Laravel 12. The domain is small on purpose. I used it to practise how I like a Laravel codebase laid out: thin controllers, form requests for validation, services for business rules, repositories behind interfaces, and side effects such as email and streaks moved out of the request through events and queued listeners.
+
+## How a request flows
+
+```
+Route (api-user-v1.php) -> FormRequest (validation) -> Controller -> Service -> Repository (interface) -> Eloquent
+                                                                         |
+                                     TodoObserver / TodoCompleted event -+-> queued listeners: completion email, streak update
+```
+
+Responses go through API Resources and a shared `ApiResponder` trait, so every endpoint returns the same envelope. Business rule violations, such as completing a todo twice or going over the per-user limit, throw a `BusinessException` that renders itself as a JSON error.
+
+## Endpoints
+
+All routes are versioned under `/api/v1` and split into three files by audience.
+
+| Method | Path | Auth |
+|---|---|---|
+| GET | `/public/health` | none |
+| POST | `/public/register`, `/public/sign-in` | none |
+| GET | `/user/auth/me` · POST `/user/auth/sign-out` | Sanctum token |
+| GET, PUT | `/user/profile` | Sanctum token |
+| GET, POST, PUT, DELETE | `/user/todos`, `/user/todos/{id}` | Sanctum token |
+| PATCH | `/user/todos/{id}/complete` | Sanctum token |
+| GET, DELETE | `/admin/users`, `/admin/users/{id}` | Sanctum token + `role:admin` |
+| GET | `/admin/stats`, `/admin/stats/todos` | Sanctum token + `role:admin` |
 
 ## Features
 
 - User registration and authentication (Sanctum)
 - Todo CRUD operations with priorities, due dates, and completion tracking
-- User streak and statistics tracking
-- Email notifications on todo completion
+- Completion streaks per user, updated by a queued listener
+- Completion email sent through a queued job
+- Admin statistics: overall counts and completions over time
 - RESTful API structure (public, user, admin routes)
 - JSON-only, API-first — no frontend build step or Node.js required
 - Database seeding with sample users and todos
@@ -24,8 +50,8 @@ A feature-rich Todo application built with Laravel 12. This project demonstrates
 
 1. **Clone the repository:**
 	```bash
-	git clone <your-repo-url>
-	cd todo-app
+	git clone https://github.com/xX0ZAK0Xx/laravel-todo-app.git
+	cd laravel-todo-app
 	```
 
 2. **Install PHP dependencies:**
@@ -94,15 +120,14 @@ vendor/bin/phpunit
 - `app/Models/` - Eloquent models (`User`, `Todo`)
 - `app/Repositories/` - Data access logic
 - `app/Services/` - Business logic
-- `app/Events/Listeners/Observers/` - Event-driven features
-- `routes/` - API and web routes
+- `app/Events/`, `app/Listeners/`, `app/Observers/`, `app/Jobs/` - Side effects that run outside the request
+- `routes/api-{public,user,admin}-v1.php` - Routes split by audience
 - `database/seeders/` - Database seeders
 
-## API
+## What I would add next
 
-- Public, user, and admin endpoints are defined in `routes/api-*.php`.
-- Uses Laravel Sanctum for API authentication.
-- All responses are JSON; there are no Blade views or compiled assets.
+- Feature tests for the todo and admin endpoints. The test suite is still the Laravel default.
+- An OpenAPI spec generated from the form requests.
 
 ## License
 
